@@ -14,7 +14,8 @@ COPY lin64.nomatlab ${MASKFACE_HOME}
 COPY runFacemasking.sh /opt
 
 RUN echo "agreeToLicense=yes" > ${MASKFACE_HOME}/input.txt && \
-    /opt/lin64.nomatlab/facemaskInstaller_mcr.install -mode silent -inputFile ${MASKFACE_HOME}/input.txt 
+    /opt/lin64.nomatlab/facemaskInstaller_mcr.install -mode silent -inputFile ${MASKFACE_HOME}/input.txt && \
+    chmod +x "/opt/runFacemasking.sh"
 
 ENV MCR_HOME=/usr/local/MATLAB/MATLAB_Runtime
 ENV MASKFACE_MCR_HOME=/usr/local/facemasking 
