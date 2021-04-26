@@ -26,3 +26,5 @@ For reference, the call in the picsl-xnat pipeline uses the following options:
 -z -b 1 -e 1 -s 1.0 -t -1 -um 0 -roi 0 -ver 0
 ```
 
+The first option must be a DICOM input directory; multiple inputs may be
+specified as a comma separated list.
