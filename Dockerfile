@@ -4,6 +4,7 @@ RUN apt-get update && \
     apt-get install -y \
               curl \
               fsl-5.0-core \
+              imagemagick \
               mricron \
               wget \
               zip
