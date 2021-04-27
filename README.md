@@ -28,3 +28,10 @@ For reference, the call in the picsl-xnat pipeline uses the following options:
 
 The first option must be a DICOM input directory; multiple inputs may be
 specified as a comma separated list.
+
+
+## Citation
+
+If using this algorithm, please cite
+
+Milchenko, M. V. & Marcus, D. (2012). Obscuring surface anatomy in volumetric imaging data. Neuroinformatics. doi: 10.1007/s12021-012-9160-3
