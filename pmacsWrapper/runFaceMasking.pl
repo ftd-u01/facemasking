@@ -175,15 +175,29 @@ chomp(@inputSeries);
 
 foreach my $seriesLabel (@inputSeries) {
     if (! exists($structuralMap{$seriesLabel}) ) {
+        print "Copying $seriesLabel from input session\n";
         system("cp -r ${sessionDir}/${seriesLabel} $dicomStagingDir");
     }
 }
 
-system("cp -r ${defaceDicomDir}/* $dicomStagingDir");
+my $foundAllDefaced = 1;
 
-# Zip up dicom for transfer
-system("zip -j ${outputDir}/${sessionLabel}.zip `find $dicomStagingDir -type f -name '*.dcm'`");
 system("cp -r $qcDir ${outputDir}");
+
+foreach my $seriesLabel (@structuralSeries) {
+    if (-d "${defaceDicomDir}/${seriesLabel}") {
+        system("cp -r ${defaceDicomDir}/${seriesLabel} $dicomStagingDir");
+    }
+    else {
+        print "Face masking failed for series \"$seriesLabel\" - output not found\n";
+        $foundAllDefaced = 0;
+    }
+}
+
+# Zip up dicom for transfer if everything worked. Dont' make a zip for incomplete data
+if ($foundAllDefaced) {
+    system("zip -j ${outputDir}/${sessionLabel}.zip `find $dicomStagingDir -type f -name '*.dcm'`");
+}
 
 # Need to chdir out of the tmp dir so it can be cleaned up
 chdir();
@@ -220,10 +234,11 @@ sub getStructuralSeries {
         }
 
         if (exists($structuralProtocols{$protocolName})) {
+            print "Adding $seriesLabel ($protocolName) for defacing\n";
             push(@structuralSeries, $seriesLabel);
         }
         else {
-            print "Not defacing $protocolName\n";
+            print "Not defacing $seriesLabel ($protocolName)\n";
         }
     }
 
