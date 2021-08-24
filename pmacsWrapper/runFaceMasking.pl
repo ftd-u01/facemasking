@@ -46,6 +46,9 @@ my $usage = qq{
       If this option is not specified, all structural series will be processed independently.
       To process a specific single series, specify it here, eg "--series 12".
 
+    --cleanup
+      1 to clean up working directories, 0 to leave them (default = 1).
+
   Output:
 
     * A zip archive with the defaced data and all other series from the session
@@ -67,9 +70,12 @@ my ($sessionDir, $outputBaseDir, $outputDir);
 
 my $seriesString = "";
 
+my $cleanup = 1;
+
 GetOptions ("session-dir=s" => \$sessionDir,
 	    "series=s" => \$seriesString,
-	    "output-dir=s" => \$outputBaseDir
+	    "output-dir=s" => \$outputBaseDir,
+        "cleanup=i" => \$cleanup
     )
     or die("Error in command line arguments\n");
 
@@ -86,9 +92,6 @@ $outputDir = abs_path($outputDir);
 
 # to avoid confusion, insist that we can create output dir
 mkpath($outputDir, {verbose => 0}) or die "Cannot create output directory $outputDir\n\t";
-
-# Remove tmpDir
-my $cleanup = 1;
 
 my $tmpDir = tempdir( "/scratch/facemasking.tmpdir.XXXXXX", CLEANUP => $cleanup );
 
@@ -167,6 +170,7 @@ system("dcm2niix -z y -o $qcDir -f %s_%i_%p $defaceDicomDir");
 # ZIP archive with defaced data
 # Copy data from non-structural series
 my $dicomStagingDir = "${tmpDir}/allDicom";
+system("mkdir $dicomStagingDir");
 
 my %structuralMap = map { $_ => 1 } @structuralSeries;
 
