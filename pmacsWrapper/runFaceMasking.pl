@@ -46,6 +46,11 @@ my $usage = qq{
       If this option is not specified, all structural series will be processed independently.
       To process a specific single series, specify it here, eg "--series 12".
 
+    --grid-step
+      Grid step coefficient. Larger grid step will result in coarser looking 3D renderings,
+      and tend to modify more voxels outside of the immediate near-surface. Should be in the
+      range 0.1-3.0 (default = 1.0).
+
     --cleanup
       1 to clean up working directories, 0 to leave them (default = 1).
 
@@ -72,9 +77,12 @@ my $seriesString = "";
 
 my $cleanup = 1;
 
+my $gridStepCoefficient = 1.0;
+
 GetOptions ("session-dir=s" => \$sessionDir,
 	    "series=s" => \$seriesString,
 	    "output-dir=s" => \$outputBaseDir,
+        "grid-step=f" => \$gridStepCoefficient,
         "cleanup=i" => \$cleanup
     )
     or die("Error in command line arguments\n");
@@ -129,10 +137,13 @@ if (scalar(@structuralSeries) == 0) {
 # Now set up working directory with the DICOM data
 foreach my $seriesLabel (@structuralSeries) {
 
-    my $dicomSuffix = "DICOM";
+    my $dicomSuffix = "";
 
     if (-d "${sessionDir}/${seriesLabel}/DICOM_ORIG") {
         $dicomSuffix = "DICOM_ORIG";
+    }
+    elsif (-d "${sessionDir}/${seriesLabel}/DICOM") {
+        $dicomSuffix = "DICOM";
     }
 
     system("mkdir -p ${tmpDir}/${seriesLabel}");
@@ -150,11 +161,11 @@ $ENV{'SINGULARITYENV_TMPDIR'} = "/tmp";
 
 if ($refSeries) {
     # One call for all series, with ref
-    system("singularity run --cleanenv -B ${jobTmpDir}:/tmp /project/ftdc_hcp/facemasking/bin/facemasking.sif $seriesString -e 1 -b 1 -r ${refSeries}");
+    system("singularity run --cleanenv -B ${jobTmpDir}:/tmp /project/ftdc_hcp/facemasking/bin/facemasking.sif $seriesString -e 1 -b 1 -s $gridStepCoefficient -r ${refSeries}");
 }
 else {
     foreach my $seriesLabel (@structuralSeries) {
-        system("singularity run --cleanenv -B ${jobTmpDir}:/tmp /project/ftdc_hcp/facemasking/bin/facemasking.sif $seriesLabel -e 1 -b 1");
+        system("singularity run --cleanenv -B ${jobTmpDir}:/tmp /project/ftdc_hcp/facemasking/bin/facemasking.sif $seriesLabel -e 1 -b 1 -s $gridStepCoefficient");
     }
 }
 
