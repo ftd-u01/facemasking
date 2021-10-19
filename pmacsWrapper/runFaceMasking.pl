@@ -94,12 +94,12 @@ my $sessionLabel = basename($sessionDir);
 
 $outputDir = "${outputBaseDir}/${sessionLabel}";
 
+# to avoid confusion, insist that we can create output dir
+mkpath($outputDir, {verbose => 0}) or die "Cannot create output directory $outputDir\n\t";
+
 # Need absolute paths as we are using containers and moving cwd
 $sessionDir = abs_path($sessionDir);
 $outputDir = abs_path($outputDir);
-
-# to avoid confusion, insist that we can create output dir
-mkpath($outputDir, {verbose => 0}) or die "Cannot create output directory $outputDir\n\t";
 
 my $tmpDir = tempdir( "/scratch/facemasking.tmpdir.XXXXXX", CLEANUP => $cleanup );
 
